@@ -233,7 +233,14 @@ document.addEventListener('wpcf7mailsent', function(event) {
 
 > ## Get Paginate link - phân trang 
 
-```php 
+```php
+$paged = ( get_query_var( 'paged' ) ) ? absint( get_query_var( 'paged' ) ) : 1;
+$args = array(
+    // options here
+    'paged' => $paged,
+);
+$the_query = new WP_Query( $args );
+
 <?php if (paginate_links() != '') { ?>
 					<div class="pagination">
 						<?php
