@@ -1,0 +1,293 @@
+<?php
+require get_template_directory() . '/comments-helper.php';
+// Show chức năng menu
+add_theme_support('menus');
+// Đăng ký vị trí menu
+function register_my_menu()
+{
+	register_nav_menu('header-menu', ('Menu chính'));
+}
+add_action('init', 'register_my_menu');
+// Tạo theme options
+if (function_exists('acf_add_options_page')) {
+	acf_add_options_page(array(
+		'page_title' 	=> 'Theme options', // Title hiển thị khi truy cập vào Options page
+		'menu_title'	=> 'Theme options', // Tên menu hiển thị ở khu vực admin
+		'menu_slug' 	=> 'theme-settings', // Url hiển thị trên đường dẫn của options page
+		'capability'	=> 'edit_posts',
+		'redirect'	=> false
+	));
+}
+// Tạo Slider
+function slider_custom_post_type()
+{
+	/*
+     * Biến $label để chứa các text liên quan đến tên hiển thị của Post Type trong Admin
+     */
+	$label = array(
+		'name' => 'Banner', //Tên post type dạng số nhiều
+		'singular_name' => 'Banner', //Tên post type dạng số ít
+		'view_item'           => 'Xem Banner',
+		'add_new_item'        => 'Thêm Banner Mới',
+		'add_new'             => 'Thêm Banner',
+		'edit_item'           => 'Chỉnh sửa Banner',
+		'update_item'         => 'Update Banner',
+		// 'search_items'        => __( 'Search Movie', 'twentytwenty' ),
+		// 'not_found'           => __( 'Not Found', 'twentytwenty' ),
+		// 'not_found_in_trash'  => __( 'Not found in Trash', 'twentytwenty' ),
+	);
+
+	/*
+     * Biến $args là những tham số quan trọng trong Post Type
+     */
+	$args = array(
+		'labels' => $label, //Gọi các label trong biến $label ở trên
+		'description' => 'Ảnh banner', //Mô tả của post type
+		'supports' => array(
+			'title',
+			'editor',
+			'thumbnail',
+		), //Các tính năng được hỗ trợ trong post type
+		'taxonomies' => array('pages'), //Các taxonomy được phép sử dụng để phân loại nội dung
+		'hierarchical' => false, //Cho phép phân cấp, nếu là false thì post type này giống như Post, true thì giống như Page
+		'public' => true, //Kích hoạt post type
+		'show_ui' => true, //Hiển thị khung quản trị như Post/Page
+		'show_in_menu' => true, //Hiển thị trên Admin Menu (tay trái)
+		'show_in_nav_menus' => true, //Hiển thị trong Appearance -> Menus
+		'show_in_admin_bar' => true, //Hiển thị trên thanh Admin bar màu đen.
+		'menu_position' => 5, //Thứ tự vị trí hiển thị trong menu (tay trái)
+		'menu_icon' => 'dashicons-slides', //Đường dẫn tới icon sẽ hiển thị
+		'can_export' => true, //Có thể export nội dung bằng Tools -> Export
+		'has_archive' => true, //Cho phép lưu trữ (month, date, year)
+		'exclude_from_search' => false, //Loại bỏ khỏi kết quả tìm kiếm
+		'publicly_queryable' => true, //Hiển thị các tham số trong query, phải đặt true
+		'capability_type' => 'post' //
+	);
+	register_post_type('banner', $args); //Tạo post type với slug tên  và các tham số trong biến $args ở trên
+}
+add_action('init', 'slider_custom_post_type');
+// Add Features Images
+add_theme_support('post-thumbnails');
+// ADD CSS ADMIN
+add_action('admin_enqueue_scripts', 'load_admin_styles');
+function load_admin_styles()
+{
+	wp_enqueue_style('admin_css', get_template_directory_uri() . '/styles/admin.css', false, '1.0.0');
+}
+// Edit Link
+function edit_link_post($id)
+{
+	$urlEditLink = get_edit_post_link($id);
+	if (current_user_can('administrator') && !is_admin()) {
+		return '<a style="font-size:18px; color:red;" href="' . $urlEditLink . '"><span class="dashicons dashicons-edit"></span></a>';
+	}
+	return null;
+}
+// Custom css cho admin
+function the_dramatist_custom_login_css()
+{
+	echo '<style type="text/css" src="' . get_template_directory_uri() . '/styles/admin.css"></style>';
+}
+add_action('login_head', 'the_dramatist_custom_login_css');
+// Custom login
+function my_login_logo_url()
+{
+	return home_url();
+}
+add_filter('login_headerurl', 'my_login_logo_url');
+function my_login_logo()
+{ ?>
+	<style type="text/css">
+		#login h1 a,
+		.login h1 a {
+			background-image: url(<?php echo get_stylesheet_directory_uri(); ?>/img/logo-canh-cam.png);
+			height: 49px;
+			width: 267px;
+			background-size: 267px auto;
+			background-repeat: no-repeat;
+		}
+	</style>
+<?php }
+add_action('login_enqueue_scripts', 'my_login_logo');
+function my_login_stylesheet()
+{
+	wp_enqueue_style('custom-login', get_stylesheet_directory_uri() . '/styles/admin.css');
+}
+add_action('login_enqueue_scripts', 'my_login_stylesheet');
+// Allow SVG
+function cc_mime_types($mimes)
+{
+	$mimes['svg'] = 'image/svg+xml';
+	return $mimes;
+}
+add_filter('upload_mimes', 'cc_mime_types');
+//
+function add_additional_class_on_li($classes, $item, $args)
+{
+	if (isset($args->add_li_class)) {
+		$classes[] = $args->add_li_class;
+	}
+	return $classes;
+}
+add_filter('nav_menu_css_class', 'add_additional_class_on_li', 1, 3);
+
+// Change class Active menu
+add_filter('nav_menu_css_class', 'special_nav_class', 10, 3);
+
+function special_nav_class($classes, $item, $args)
+{
+	if (in_array('current-menu-item', $classes)) {
+		if (isset($args->add_class_active)) {
+			$classes[] = $args->add_class_active;
+		}
+	}
+	return $classes;
+}
+// Clone page or post
+/*
+ * Function for post duplication. Dups appear as drafts. User is redirected to the edit screen
+ */
+function rd_duplicate_post_as_draft()
+{
+	global $wpdb;
+	if (!(isset($_GET['post']) || isset($_POST['post'])  || (isset($_REQUEST['action']) && 'rd_duplicate_post_as_draft' == $_REQUEST['action']))) {
+		wp_die('No post to duplicate has been supplied!');
+	}
+	/*
+   * Nonce verification
+   */
+	if (!isset($_GET['duplicate_nonce']) || !wp_verify_nonce($_GET['duplicate_nonce'], basename(__FILE__)))
+		return;
+	/*
+   * get the original post id
+   */
+	$post_id = (isset($_GET['post']) ? absint($_GET['post']) : absint($_POST['post']));
+	/*
+   * and all the original post data then
+   */
+	$post = get_post($post_id);
+	/*
+   * if you don't want current user to be the new post author,
+   * then change next couple of lines to this: $new_post_author = $post->post_author;
+   */
+	$current_user = wp_get_current_user();
+	$new_post_author = $current_user->ID;
+	/*
+   * if post data exists, create the post duplicate
+   */
+	if (isset($post) && $post != null) {
+		/*
+     * new post data array
+     */
+		$args = array(
+			'comment_status' => $post->comment_status,
+			'ping_status'    => $post->ping_status,
+			'post_author'    => $new_post_author,
+			'post_content'   => $post->post_content,
+			'post_excerpt'   => $post->post_excerpt,
+			'post_name'      => $post->post_name,
+			'post_parent'    => $post->post_parent,
+			'post_password'  => $post->post_password,
+			'post_status'    => 'draft',
+			'post_title'     => $post->post_title,
+			'post_type'      => $post->post_type,
+			'to_ping'        => $post->to_ping,
+			'menu_order'     => $post->menu_order
+		);
+		/*
+     * insert the post by wp_insert_post() function
+     */
+		$new_post_id = wp_insert_post($args);
+		/*
+     * get all current post terms ad set them to the new post draft
+     */
+		$taxonomies = get_object_taxonomies($post->post_type); // returns array of taxonomy names for post type, ex array("category", "post_tag");
+		foreach ($taxonomies as $taxonomy) {
+			$post_terms = wp_get_object_terms($post_id, $taxonomy, array('fields' => 'slugs'));
+			wp_set_object_terms($new_post_id, $post_terms, $taxonomy, false);
+		}
+		/*
+     * duplicate all post meta just in two SQL queries
+     */
+		$post_meta_infos = $wpdb->get_results("SELECT meta_key, meta_value FROM $wpdb->postmeta WHERE post_id=$post_id");
+		if (count($post_meta_infos) != 0) {
+			$sql_query = "INSERT INTO $wpdb->postmeta (post_id, meta_key, meta_value) ";
+			foreach ($post_meta_infos as $meta_info) {
+				$meta_key = $meta_info->meta_key;
+				if ($meta_key == '_wp_old_slug') continue;
+				$meta_value = addslashes($meta_info->meta_value);
+				$sql_query_sel[] = "SELECT $new_post_id, '$meta_key', '$meta_value'";
+			}
+			$sql_query .= implode(" UNION ALL ", $sql_query_sel);
+			$wpdb->query($sql_query);
+		}
+		/*
+     * finally, redirect to the edit post screen for the new draft
+     */
+		wp_redirect(admin_url('post.php?action=edit&post=' . $new_post_id));
+		exit;
+	} else {
+		wp_die('Post creation failed, could not find original post: ' . $post_id);
+	}
+}
+add_action('admin_action_rd_duplicate_post_as_draft', 'rd_duplicate_post_as_draft');
+/*
+ * Add the duplicate link to action list for post_row_actions
+ */
+function rd_duplicate_post_link($actions, $post)
+{
+	if (current_user_can('edit_posts')) {
+		$actions['duplicate'] = '<a href="' . wp_nonce_url('admin.php?action=rd_duplicate_post_as_draft&post=' . $post->ID, basename(__FILE__), 'duplicate_nonce') . '" title="Duplicate this item" rel="permalink">Duplicate</a>';
+	}
+	return $actions;
+}
+add_filter('post_row_actions', 'rd_duplicate_post_link', 10, 2);
+add_filter('page_row_actions', 'rd_duplicate_post_link', 10, 2);
+// Register sidebar and Classic widget
+if (function_exists('register_sidebar')) {
+	register_sidebar(array(
+		'name' => 'Cột bên',
+		'id' => 'sidebar',
+	));
+}
+function example_theme_support()
+{
+	remove_theme_support('widgets-block-editor');
+}
+add_action('after_setup_theme', 'example_theme_support');
+// Edit Slug Custom Post Types
+function remove_custom_post_type_slug($post_link, $post)
+{
+	if ('products' === $post->post_type && 'publish' === $post->post_status) {
+		$post_link = str_replace('/' . $post->post_type . '/', '/', $post_link);
+	}
+	if ('grounds' === $post->post_type && 'publish' === $post->post_status) {
+		$post_link = str_replace('/' . $post->post_type . '/', '/', $post_link);
+	}
+	return $post_link;
+}
+add_filter('post_type_link', 'remove_custom_post_type_slug', 10, 2);
+function add_post_names_to_main_query($query)
+{
+	// Bail if this is not the main query.
+	if (!$query->is_main_query()) {
+		return;
+	}
+	// Bail if this query doesn't match our very specific rewrite rule.
+	if (!isset($query->query['page']) || 2 !== count($query->query)) {
+		return;
+	}
+	// Bail if we're not querying based on the post name.
+	if (empty($query->query['name'])) {
+		return;
+	}
+	// Add CPT to the list of post types WP will include when it queries based on the post name.
+	$query->set('post_type', array('post', 'page', 'products', 'grounds'));
+}
+add_action('pre_get_posts', 'add_post_names_to_main_query');
+// Get Language current OUTPUT: echo do_shortcode('[language]')
+function get_language_shortcode()
+{
+	return apply_filters('wpml_current_language', null);
+}
+add_shortcode('language', 'get_language_shortcode');
