@@ -2,7 +2,6 @@
 
 [toc]
 
-
 # **SỬ DỤNG BỘ THEME BOILERPLATE**
 
 > ## **Upload Theme**
@@ -83,8 +82,19 @@ Template name: Page - Sản phẩm List
 > ## **Ráp form search**
 
 ```html
-<form class="searchbox flex items-center w-full relative" action="<?php bloginfo('url') ?>/" method="GET" role="form">
-	<input class="w-full" name="s" class="form-control" type="text" placeholder="Tìm kiếm">
+<form
+	class="searchbox flex items-center w-full relative"
+	action="<?php bloginfo('url') ?>/"
+	method="GET"
+	role="form"
+>
+	<input
+		class="w-full"
+		name="s"
+		class="form-control"
+		type="text"
+		placeholder="Tìm kiếm"
+	/>
 	<button type="submit" class="flex items-center justify-center">
 		<em class="fa-regular fa-magnifying-glass"></em>
 	</button>
@@ -109,7 +119,9 @@ Template name: Page - Sản phẩm List
 	"add_class_active" => "" //Tùy biến class active - Option custom thêm
 ]); ?>
 ```
+
 > ## **Get breadcrumb**
+
 ```php
 <div class="global-breadcrumb">
 	<div class="container">
@@ -117,13 +129,17 @@ Template name: Page - Sản phẩm List
 	</div>
 </div>
 ```
+
 > ## **Get id page hiện tại**
+
 ```php
 get_the_ID()
 ```
 
 > ## **Get đường dẫn root**
-- Dùng cho trường hợp dùng hình cứng trong source
+
+-   Dùng cho trường hợp dùng hình cứng trong source
+
 ```php
 <?php bloginfo('template_directory')?>
 ```
@@ -137,11 +153,14 @@ print_r(get_field("section_home_3", get_the_ID()));
 > ## **Tại sao phải dùng wp_reset_postdata()**
 
 ```html
-Đây là hàm luôn nằm ở cuối cùng khi get post có sử dụng phương thức WP_query()
-- Dùng để reset lại biến $post trong truy vấn chính tránh phát sinh ra lỗi
+Đây là hàm luôn nằm ở cuối cùng khi get post có sử dụng phương thức WP_query() -
+Dùng để reset lại biến $post trong truy vấn chính tránh phát sinh ra lỗi
 ```
+
 > ## **Code get post | Không sử dụng custom field**
-* code này dùng cho trường hợp không phải từ **custom field**
+
+-   code này dùng cho trường hợp không phải từ **custom field**
+
 ```php
 $args = array(
 	'order' => 'ASC',
@@ -156,6 +175,7 @@ endwhile;
 endif;
 wp_reset_postdata();
 ```
+
 > ## **Các hook để get dữ liệu trong custom field**
 
 ```php
@@ -197,27 +217,34 @@ $news_home = get_field('key_field_post_object')
 ```
 
 > ## **Code lấy gọi module file**
+
 ```php
 <?php
 	get_template_part('modules/introduce/about')
 ?>
 ```
 
-
 > ## **Ráp form thông tin**
+
 ```php
 Tạo form trong cms contact form => Lấy mã shortcode
 <?php echo do_shortcode('[contact-form-7 id="395" title="Contact form 1"]'); ?>
 ```
+
 ```js
 // Sử dụng sự kiện wpcf7mailsent để handle sự kiến submit form thành công
-document.addEventListener('wpcf7mailsent', function(event) {
-	$('.box-form .wrapper').remove()
-	$('.popup-form .box-success').removeClass('hidden')
-}, false);
+document.addEventListener(
+	"wpcf7mailsent",
+	function (event) {
+		$(".box-form .wrapper").remove();
+		$(".popup-form .box-success").removeClass("hidden");
+	},
+	false
+);
 ```
 
 > ## **Get bài viết liên quan trong chi tiết tin**
+
 ```php
 <?php
 	$category = get_the_category(get_the_ID());
@@ -231,7 +258,7 @@ document.addEventListener('wpcf7mailsent', function(event) {
 ?>
 ```
 
-> ## Get Paginate link - phân trang 
+> ## Get Paginate link - phân trang
 
 ```php
 $paged = ( get_query_var( 'paged' ) ) ? absint( get_query_var( 'paged' ) ) : 1;
@@ -242,27 +269,27 @@ $args = array(
 $the_query = new WP_Query( $args );
 
 <?php if (paginate_links() != '') { ?>
-					<div class="pagination">
-						<?php
-						global $wp_query;
-						$big = 99999999;
-						echo paginate_links(array(
-							'base' => str_replace($big, '%#%', esc_url(get_pagenum_link($big))),
-							'format' => '?paged=%#%',
-							'prev_text' => __('<'),
-							'next_text' => __('>'),
-							'current' => max(1, get_query_var('paged')),
-							'total' => $wp_query->max_num_pages
-						))
-						?>
-					</div>
-				<?php
-				}
-				?>
+		<div class="pagination">
+			<?php
+			global $wp_query;
+			$big = 99999999;
+			echo paginate_links(array(
+				'base' => str_replace($big, '%#%', esc_url(get_pagenum_link($big))),
+				'format' => '?paged=%#%',
+				'prev_text' => __('<'),
+				'next_text' => __('>'),
+				'current' => max(1, get_query_var('paged')),
+				'total' => $wp_query->max_num_pages
+			))
+			?>
+		</div>
+	<?php
+	}
+?>
 ```
 
-
 > ## Get list page children
+
 ```php
 $all_locations = get_pages(array(
 			'post_type'         => 'page', //here's my CPT
@@ -272,12 +299,38 @@ $all_locations = get_pages(array(
 		$list_page_child = get_page_children(14, $all_locations);
 ```
 
+> ## **Get Term Children - Taxonomy**
+
+```php
+$childs = get_term_children(17,'danh-muc-san-pham') // tham số 2 là key của taxonomy
+<?php if ($childs) : ?>
+  <?php foreach ($childs as $child) : ?>
+    <li>
+        <a href="<?php echo get_term_link($child) ?>"><?php echo get_term($child)->name; ?></a>
+    </li>
+  <?php endforeach ?>
+<?php endif; ?>
+```
+> ## **Get Children Category**
+```php
+<?php
+	$idCurrent = get_queried_object()->term_id;
+	$childs = get_term_children(13, 'category');
+?>
+<?php foreach ($childs as $child) :  ?>
+	<li class="<?php echo (get_category_link($child) == get_category_link($idCurrent) ? 'active' : '') ?>"><a href="<?php echo get_category_link($child) ?>">
+			<?php echo get_cat_name($child) ?>
+		</a></li>
+<?php endforeach; ?>
+```
+
 > ## **Check conditional EN or VI**
+
 ```php
 	echo do_shortcode('[language]')
 ```
 
-> **get_queried_object()->term_id;: get category id current**: Key get current category id 
+> **get_queried_object()->term_id;: get category id current**: Key get current category id
 
 > **the_title(string $before = '', string $after = '', bool $echo = true)**: key get title page => Displays or retrieves the current post title
 
@@ -296,9 +349,11 @@ $all_locations = get_pages(array(
 > **single_post_title( string $prefix = '', bool $display = true )**: Get title page and post
 
 ---
+
 # **Một số code function thông dụng**
-* Tên cả những file code dưới đều sử dụng trong **functions.php**
-> ## **Tạo vị trí menu**
+
+-   Tên cả những file code dưới đều sử dụng trong **functions.php**
+    > ## **Tạo vị trí menu**
 
 ```php
 function register_my_menu()
@@ -372,7 +427,7 @@ add_action('init', 'slider_custom_post_type');
 
 > ## **Custom taxonomy**
 
-```php 
+```php
 
 <?php
 function tao_taxonomy_category_product()
@@ -398,7 +453,6 @@ add_action('init', 'tao_taxonomy_category_product', 0);
 
 ```
 
-
 > ## **Custom thêm ảnh đại diện bài viết**
 
 ```php
@@ -419,11 +473,13 @@ add_action('init', 'admin_bar');
 ```
 
 > ## **Thêm chức năng menu**
+
 ```php
 add_theme_support('menus');
 ```
 
 > ## Xóa slug post-types
+
 ```php
 function remove_custom_post_type_slug($post_link, $post)
 {
@@ -456,6 +512,7 @@ function add_post_names_to_main_query($query)
 ```
 
 > ## Xóa slug post-types
+
 ```php
 // Bỏ vào trong functions.php
 function cc_mime_types($mimes)
@@ -468,51 +525,69 @@ add_filter('upload_mimes', 'cc_mime_types');
 define('ALLOW_UNFILTERED_UPLOADS', true);
 
 ```
+
 ---
+
 # **Một số lỗi hay gặp**
+
 > **Không hiện show admin bar**
-- Thiếu thẻ **wp_header()** hoặc **wp_footer()**
+
+-   Thiếu thẻ **wp_header()** hoặc **wp_footer()**
+
 ---
+
 # **Cách làm đa ngôn ngữ**
-- Sử dụng plugin **WPML**
-- Vào mục setting tick dịch hết những field có translate - https://ibb.co/z61G7bc
-- Đối với page - custom field - post => duplicate chuyển sang ngôn ngữ tiếng anh edit
-* Lưu ý phải dịch **page** > **category** > **post** > **custom field**
+
+-   Sử dụng plugin **WPML**
+-   Vào mục setting tick dịch hết những field có translate - https://ibb.co/z61G7bc
+-   Đối với page - custom field - post => duplicate chuyển sang ngôn ngữ tiếng anh edit
+
+*   Lưu ý phải dịch **page** > **category** > **post** > **custom field**
+
 ---
+
 # **Bảo mật wordpress**
+
 > **Change link login** - Sử dụng plugin WPS Hide Login
-- Change đường dẫn trong settings - admincp
+
+-   Change đường dẫn trong settings - admincp
+
 ---
+
 ## **Field Custom Mặc Định**
-- Banner (file: function-field)
-	- Banner: **banner_select_page** 
-  - Custom thêm chổ hiển thị field 
-  ```php 
+
+-   Banner (file: function-field)
+    -   Banner: **banner_select_page**
+    -   Custom thêm chổ hiển thị field
+    ```php
+        array(
+          array(
+            'param' => 'post_type',
+            'operator' => '==',
+            'value' => 'page',
+          ),
+        ),
+        array(
+          array(
+            'param' => 'taxonomy',
+            'operator' => '==',
+            'value' => 'category',
+            ),
+        ),
+        // Thêm taxonomy ở dưới
       array(
         array(
-          'param' => 'post_type',
-          'operator' => '==',
-          'value' => 'page',
-        ),
-      ),
-      array(
-        array( 
           'param' => 'taxonomy',
           'operator' => '==',
-          'value' => 'category',
-          ),
-      ),
-      // Thêm taxonomy ở dưới
-    array(
-      array(
-        'param' => 'taxonomy',
-        'operator' => '==',
-        'value' => 'danh-muc-san-pham'
+          'value' => 'danh-muc-san-pham'
+        )
       )
-    )
-  ```
+    ```
+
 ---
+
 # **Một số nguồn tham khảo**
+
 https://gist.github.com/thachpham92/d57b18cf02e3550acdb5
 
 https://huykira.net/
