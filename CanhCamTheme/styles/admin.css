@@ -1,11 +1,26 @@
 :root {
 	--main: #f73936;
 }
-.acf-field.acf-field-group > .acf-label label {
+.acf-postbox > .acf-fields.-top > .acf-field > .acf-label label {
 	font-size: 20px;
 	background-color: #efefef;
 	padding: 10px !important;
 }
+.acf-postbox > .acf-fields.-top > .acf-field .acf-field-group > .acf-label label {
+	font-size: 16px;
+	background-color: #e3e3e3;
+	padding: 8px !important;
+}
+/* .acf-postbox > .acf-fields.-top > .acf-field-repeater > .acf-label label {
+	font-size: 20px;
+	background-color: #efefef;
+	padding: 10px !important;
+}
+.acf-postbox > .acf-fields.-top > .acf-field-image > .acf-label label {
+	font-size: 20px;
+	background-color: #efefef;
+	padding: 10px !important;
+} */
 body.login {
 	background-color: #f0f0f1;
 }
