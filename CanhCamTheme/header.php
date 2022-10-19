@@ -15,7 +15,7 @@
 	<!-- Script-->
 </head>
 
-<body class="<?php the_field('add_class_body',get_the_ID()) ?>">
+<body <?php body_class(get_field('add_class_body', get_the_ID())) ?>>
 	<header>
 		header
 	</header>
