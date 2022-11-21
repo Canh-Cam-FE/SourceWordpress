@@ -10,11 +10,11 @@
 /**
  * ADD theme option framework
  */
-define('THEME_NAME', "KENIT");
-define('NT_HOME', esc_url(home_url('/')));
-define('NT_URI', get_template_directory_uri());
-define('NT_DIR', get_template_directory());
-define('NT_INC', NT_DIR . '/inc');
+define('THEME_NAME', "CanhCamTheme");
+define('THEME_HOME', esc_url(home_url('/')));
+define('THEME_URI', get_template_directory_uri());
+define('THEME_DIR', get_template_directory());
+define('THEME_INC', THEME_DIR . '/inc');
 
 if (!function_exists('canhcam_setup')) :
 	function canhcam_setup()
@@ -60,7 +60,6 @@ if (!function_exists('canhcam_setup')) :
 		)));
 		// Add theme support for selective refresh for widgets.
 		add_theme_support('customize-selective-refresh-widgets');
-		add_image_size('post-img', 600, 450, true);
 		// Add logo
 		add_theme_support('custom-logo');
 	}
