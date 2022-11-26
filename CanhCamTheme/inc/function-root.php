@@ -1,11 +1,22 @@
 <?php
+
+use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
+
 require get_template_directory() . '/comments-helper.php';
 // Show chức năng menu
 add_theme_support('menus');
 // Đăng ký vị trí menu
 function register_my_menu()
 {
-	register_nav_menu('header-menu', ('Menu chính'));
+	$locations = array(
+		'header-top' => __('Menu top', 'canhcamtheme'),
+		'header-menu' => __('Menu chính', 'canhcamtheme'),
+		'footer-1' => __('Footer 1', 'canhcamtheme'),
+		'footer-2' => __('Footer 2', 'canhcamtheme'),
+		'footer-3' => __('Footer 3', 'canhcamtheme'),
+		'footer-4' => __('Footer 4', 'canhcamtheme'),
+	);
+	register_nav_menus($locations);
 }
 add_action('init', 'register_my_menu');
 // Tạo theme options
@@ -291,3 +302,31 @@ function get_language_shortcode()
 	return apply_filters('wpml_current_language', null);
 }
 add_shortcode('language', 'get_language_shortcode');
+
+function get_id_language($id, $type = 'post', $language)
+{
+	$id_page_translate = apply_filters('wpml_object_id', $id, $type, FALSE, $language);
+	return $id_page_translate;
+}
+
+
+/**
+ * Add class active tab
+ */
+
+
+function add_class_active_tab($link_current, $link_item)
+{
+	return ($link_current == $link_item) ? 'active' : '';
+}
+
+/**
+ * Get name menu from theme_location
+ */
+
+function get_name_menu($key_menu) {
+	$theme_locations = get_nav_menu_locations()['footer-1'];
+	$name = wp_get_nav_menu_object($theme_locations);
+	return $name->name;
+}
+

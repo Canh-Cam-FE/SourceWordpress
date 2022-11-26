@@ -10,7 +10,7 @@
 /**
  * ADD theme option framework
  */
-define('THEME_NAME', "CanhCamTheme");
+define('THEME_NAME', "canhcamtheme");
 define('THEME_HOME', esc_url(home_url('/')));
 define('THEME_URI', get_template_directory_uri());
 define('THEME_DIR', get_template_directory());
