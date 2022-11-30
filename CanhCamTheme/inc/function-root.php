@@ -1,7 +1,5 @@
 <?php
 
-use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
-
 require get_template_directory() . '/comments-helper.php';
 // Show chức năng menu
 add_theme_support('menus');
@@ -277,6 +275,7 @@ function remove_custom_post_type_slug($post_link, $post)
 	}
 	return $post_link;
 }
+
 add_filter('post_type_link', 'remove_custom_post_type_slug', 10, 2);
 function add_post_names_to_main_query($query)
 {
@@ -296,6 +295,7 @@ function add_post_names_to_main_query($query)
 	$query->set('post_type', array('post', 'page', 'products', 'grounds'));
 }
 add_action('pre_get_posts', 'add_post_names_to_main_query');
+
 // Get Language current OUTPUT: echo do_shortcode('[language]')
 function get_language_shortcode()
 {
@@ -324,9 +324,164 @@ function add_class_active_tab($link_current, $link_item)
  * Get name menu from theme_location
  */
 
-function get_name_menu($key_menu) {
+function get_name_menu($key_menu)
+{
 	$theme_locations = get_nav_menu_locations()['footer-1'];
 	$name = wp_get_nav_menu_object($theme_locations);
 	return $name->name;
 }
 
+
+/**
+ * Fix phân cấp của post category
+ */
+
+
+add_action('add_meta_boxes_post', 'fix_hierarchical_post_categories_metaboxes', 10, 1);
+
+function fix_hierarchical_post_categories_metaboxes($post)
+{
+	global $wp_meta_boxes;
+	foreach ($wp_meta_boxes as &$post_metaboxes) {
+		foreach ($post_metaboxes as &$position_metaboxes) {
+			foreach ($position_metaboxes as &$priority_metaboxes) {
+				foreach ($priority_metaboxes as &$metabox) {
+					if ($metabox['callback'] == 'post_categories_meta_box') {
+						$metabox['callback'] = 'hierarchical_post_categories_meta_box';
+					}
+				}
+			}
+		}
+	}
+}
+
+function hierarchical_post_categories_meta_box($post, $box)
+{
+	$defaults = array('taxonomy' => 'category');
+	if (!isset($box['args']) || !is_array($box['args']))
+		$args = array();
+	else
+		$args = $box['args'];
+	extract(wp_parse_args($args, $defaults), EXTR_SKIP);
+	$tax = get_taxonomy($taxonomy);
+
+?>
+	<div id="taxonomy-<?php echo $taxonomy; ?>" class="categorydiv">
+		<ul id="<?php echo $taxonomy; ?>-tabs" class="category-tabs">
+			<li class="tabs"><a href="#<?php echo $taxonomy; ?>-all" tabindex="3"><?php echo $tax->labels->all_items; ?></a></li>
+			<li class="hide-if-no-js"><a href="#<?php echo $taxonomy; ?>-pop" tabindex="3"><?php _e('Most Used'); ?></a></li>
+		</ul>
+
+		<div id="<?php echo $taxonomy; ?>-pop" class="tabs-panel" style="display: none;">
+			<ul id="<?php echo $taxonomy; ?>checklist-pop" class="categorychecklist form-no-clear">
+				<?php $popular_ids = wp_popular_terms_checklist($taxonomy); ?>
+			</ul>
+		</div>
+
+		<div id="<?php echo $taxonomy; ?>-all" class="tabs-panel">
+			<?php
+			$name = ($taxonomy == 'category') ? 'post_category' : 'tax_input[' . $taxonomy . ']';
+			echo "<input type='hidden' name='{$name}[]' value='0' />"; // Allows for an empty term set to be sent. 0 is an invalid Term ID and will be ignored by empty() checks.
+			?>
+			<ul id="<?php echo $taxonomy; ?>checklist" class="list:<?php echo $taxonomy ?> categorychecklist form-no-clear">
+				<?php wp_terms_checklist($post->ID, array('taxonomy' => $taxonomy, 'popular_cats' => $popular_ids, 'checked_ontop' => false)) ?>
+			</ul>
+		</div>
+		<?php if (current_user_can($tax->cap->edit_terms)) : ?>
+			<div id="<?php echo $taxonomy; ?>-adder" class="wp-hidden-children">
+				<h4>
+					<a id="<?php echo $taxonomy; ?>-add-toggle" href="#<?php echo $taxonomy; ?>-add" class="hide-if-no-js" tabindex="3">
+						<?php
+						/* translators: %s: add new taxonomy label */
+						printf(__('+ %s'), $tax->labels->add_new_item);
+						?>
+					</a>
+				</h4>
+				<p id="<?php echo $taxonomy; ?>-add" class="category-add wp-hidden-child">
+					<label class="screen-reader-text" for="new<?php echo $taxonomy; ?>"><?php echo $tax->labels->add_new_item; ?></label>
+					<input type="text" name="new<?php echo $taxonomy; ?>" id="new<?php echo $taxonomy; ?>" class="form-required form-input-tip" value="<?php echo esc_attr($tax->labels->new_item_name); ?>" tabindex="3" aria-required="true" />
+					<label class="screen-reader-text" for="new<?php echo $taxonomy; ?>_parent">
+						<?php echo $tax->labels->parent_item_colon; ?>
+					</label>
+					<?php wp_dropdown_categories(array('taxonomy' => $taxonomy, 'hide_empty' => 0, 'name' => 'new' . $taxonomy . '_parent', 'orderby' => 'name', 'hierarchical' => 1, 'show_option_none' => '&mdash; ' . $tax->labels->parent_item . ' &mdash;', 'tab_index' => 3)); ?>
+					<input type="button" id="<?php echo $taxonomy; ?>-add-submit" class="add:<?php echo $taxonomy ?>checklist:<?php echo $taxonomy ?>-add button category-add-sumbit" value="<?php echo esc_attr($tax->labels->add_new_item); ?>" tabindex="3" />
+					<?php wp_nonce_field('add-' . $taxonomy, '_ajax_nonce-add-' . $taxonomy, false); ?>
+					<span id="<?php echo $taxonomy; ?>-ajax-response"></span>
+				</p>
+			</div>
+		<?php endif; ?>
+	</div>
+<?php
+}
+
+/**
+ * Fix bỏ phân trang của category ở Menu
+ */
+
+
+class Preserve_Page_and_Taxonomy_Hierarchy
+{
+
+	function __construct()
+	{
+		add_action('load-nav-menus.php', array($this, 'init'));
+	}
+
+	function init()
+	{
+		add_action('pre_get_posts',    array($this, 'disable_paging_for_hierarchical_post_types'));
+		add_filter('get_terms_args',   array($this, 'remove_limit_for_hierarchical_taxonomies'), 10, 2);
+		add_filter('get_terms_fields', array($this, 'remove_page_links_for_hierarchical_taxonomies'), 10, 3);
+	}
+
+	function disable_paging_for_hierarchical_post_types($query)
+	{
+		if (!is_admin() || 'nav-menus' !== get_current_screen()->id) {
+			return;
+		}
+
+		if (!is_post_type_hierarchical($query->get('post_type'))) {
+			return;
+		}
+
+		if (50 == $query->get('posts_per_page')) {
+			$query->set('nopaging', true);
+		}
+	}
+
+	function remove_limit_for_hierarchical_taxonomies($args, $taxonomies)
+	{
+		if (!is_admin() || 'nav-menus' !== get_current_screen()->id) {
+			return $args;
+		}
+
+		if (!is_taxonomy_hierarchical(reset($taxonomies))) {
+			return $args;
+		}
+
+		if (50 == $args['number']) {
+			$args['number'] = '';
+		}
+
+		return $args;
+	}
+
+	function remove_page_links_for_hierarchical_taxonomies($selects, $args, $taxonomies)
+	{
+		if (!is_admin() || 'nav-menus' !== get_current_screen()->id) {
+			return $selects;
+		}
+
+		if (!is_taxonomy_hierarchical(reset($taxonomies))) {
+			return $selects;
+		}
+
+		if ('count' === $args['fields']) {
+			$selects = array('1');
+		}
+
+		return $selects;
+	}
+}
+
+new Preserve_Page_and_Taxonomy_Hierarchy;
