@@ -431,9 +431,13 @@ function get_term_depth($taxonomy, $depth)
 			$category_array[] = $id_parent->term_id;
 		}
 	} else {
-		// echo $id_parent->parent;
 		$category_array[] = $id_parent->term_id;
 	}
 	$result = array_reverse($category_array);
-	return $result[$depth];
+	$depthInArray = count($result);
+	if(($depthInArray - 1) < $depth) {
+		return $id_term;
+	} else {
+		return $result[$depth];
+	}
 }
