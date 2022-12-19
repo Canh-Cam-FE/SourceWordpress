@@ -8,9 +8,6 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<!-- Style-->
-	<link rel="stylesheet" href="<?php bloginfo("template_directory"); ?>/styles/main.min.css">
-	<link rel="stylesheet" href="<?php bloginfo("template_directory"); ?>/styles/global.min.css">
-	<link rel="stylesheet" href="<?php bloginfo("template_directory"); ?>/styles/fontAwesome.min.css">
 	<?php wp_head(); ?>
 	<!-- Script-->
 </head>

@@ -414,3 +414,26 @@ class Preserve_Page_and_Taxonomy_Hierarchy
 }
 
 new Preserve_Page_and_Taxonomy_Hierarchy;
+
+/**
+ * Get term depth
+ */
+
+function get_term_depth($taxonomy, $depth)
+{
+	$id_term = get_queried_object()->term_id;
+	$category_array = array();
+	$id_parent = get_term_by('id', $id_term, $taxonomy);
+	if ($id_parent->parent != 0) {
+		while ($id_parent->parent != '0') {
+			$term_id = $id_parent->parent;
+			$id_parent = get_term_by('id', $term_id, $taxonomy);
+			$category_array[] = $id_parent->term_id;
+		}
+	} else {
+		// echo $id_parent->parent;
+		$category_array[] = $id_parent->term_id;
+	}
+	$result = array_reverse($category_array);
+	return $result[$depth];
+}

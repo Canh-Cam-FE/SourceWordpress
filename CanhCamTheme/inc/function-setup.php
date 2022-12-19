@@ -16,6 +16,29 @@ define('THEME_URI', get_template_directory_uri());
 define('THEME_DIR', get_template_directory());
 define('THEME_INC', THEME_DIR . '/inc');
 
+/**
+ * Run style and script
+ */
+
+add_action('wp_enqueue_scripts', 'canhcam_style');
+
+function canhcam_style()
+{
+	/**
+	 * Styles
+	 */
+
+	wp_enqueue_style('frontend-style-main', THEME_URI . '/styles/global.min.css', array(), GENERATE_VERSION);
+	wp_enqueue_style('frontend-style-global', THEME_URI . '/styles/main.min.css', array(), GENERATE_VERSION);
+
+	/**
+	 * Script
+	 */
+
+	wp_enqueue_script('front-end-global', THEME_URI . '/scripts/global.min.js', '', '', true);
+	wp_enqueue_script('front-end-main', THEME_URI . '/scripts/main.min.js', '', '', true);
+}
+
 if (!function_exists('canhcam_setup')) :
 	function canhcam_setup()
 	{
