@@ -3,8 +3,8 @@
 # **Bảo mật website wordpress**
 - Đổi prefix database: brozzme-db-prefix-Change
 - Bảo mật xác thực 2 lớp: ithemes-securiry-pro
--- Cấu hình recaptcha cho login
--- Bật xác minh 2 bước qua email khi login
+- - Cấu hình recaptcha cho login
+- - Bật xác minh 2 bước qua email khi login
 - Password sau khi onsite để lại random
 
 # **SỬ DỤNG BỘ THEME BOILERPLATE**
