@@ -315,9 +315,13 @@ function get_id_language($id, $type = 'post', $language)
  */
 
 
-function add_class_active_tab($link_current, $link_item)
+function add_class_active_tab($id_item)
 {
-	return ($link_current == $link_item) ? 'active' : '';
+	$id_category = get_queried_object()->term_id;
+	$id_parent = get_queried_object()->parent;
+	// $link_current = get_term_link(get_queried_object()->term_id);
+	// $link_item = get_term_link($id_item);
+	return ($id_category == $id_item || $id_parent == $id_item) ? 'active' : '';
 }
 
 /**
@@ -326,7 +330,7 @@ function add_class_active_tab($link_current, $link_item)
 
 function get_name_menu($key_menu)
 {
-	$theme_locations = get_nav_menu_locations()['footer-1'];
+	$theme_locations = get_nav_menu_locations()[$key_menu];
 	$name = wp_get_nav_menu_object($theme_locations);
 	return $name->name;
 }
