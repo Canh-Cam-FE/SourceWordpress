@@ -3,7 +3,7 @@
 # **Bảo mật website wordpress**
 - Đổi prefix database: brozzme-db-prefix-Change
 - Bảo mật xác thực 2 lớp: ithemes-securiry-pro
-
+-- []
 # **SỬ DỤNG BỘ THEME BOILERPLATE**
 
 > ## **Upload Theme**
