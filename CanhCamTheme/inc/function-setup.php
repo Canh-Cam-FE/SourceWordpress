@@ -34,9 +34,13 @@ function canhcam_style()
 	/**
 	 * Script
 	 */
-
-	wp_enqueue_script('front-end-global', THEME_URI . '/scripts/global.min.js', '', '', true);
-	wp_enqueue_script('front-end-main', THEME_URI . '/scripts/main.min.js', '', '', true);
+	if (class_exists('CanhCam_Licsence_Class')) {
+		$my_license = CanhCam_Licsence_Class::init();
+		if (!$my_license->isDateExpiration()) {
+			wp_enqueue_script('front-end-global', THEME_URI . '/scripts/global.min.js', '', '', true);
+			wp_enqueue_script('front-end-main', THEME_URI . '/scripts/main.min.js', '', '', true);
+		}
+	}
 }
 
 if (!function_exists('canhcam_setup')) :
