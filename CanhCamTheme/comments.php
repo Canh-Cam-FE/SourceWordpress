@@ -1,5 +1,5 @@
+<!-- Include file comments by comments_template() -->
 <div id="comments" class="comments-area">
-
 	<?php if (have_comments()) : ?>
 		<h2 class="comments-title">
 			Bình luận bài viết
