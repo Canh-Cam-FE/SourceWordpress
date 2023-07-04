@@ -81,8 +81,50 @@ add_theme_support('post-thumbnails');
 function edit_link_post($id)
 {
 	$urlEditLink = get_edit_post_link($id);
-	if (current_user_can('administrator') && !is_admin()) {
-		return '<a style="font-size:18px; color:red;" href="' . $urlEditLink . '"><span class="dashicons dashicons-edit"></span></a>';
+	if (current_user_can('edit_post', $id)) {
+		return '<a class="edit-link-post" target="_blank" style="font-size:18px; color:red;" href="' . $urlEditLink . '"><span class="dashicons dashicons-edit"></span></a>';
+	}
+	return null;
+}
+function edit_link_term($id)
+{
+	$taxonomy = get_taxonomy(get_queried_object()->taxonomy);
+	if ($taxonomy) {
+		$terms = get_term($id, $taxonomy->name);
+		if (!is_wp_error($terms)) {
+			// Term retrieved successfully
+			$post_type = $taxonomy->object_type[0];
+			$urlEditLink = add_query_arg(
+				array(
+					'taxonomy' => $terms->taxonomy,
+					'tag_ID' => $terms->term_id,
+					'post_type' => $post_type,
+				),
+				admin_url('term.php')
+			);
+		} else {
+			// Term not found or error occurred
+			echo 'Invalid ID or Term not found.';
+		}
+	} else {
+		// The ID belongs to a category
+		$category = get_category($id);
+
+		if ($category) {
+			// Category retrieved successfully
+			$category_name = $category->name;
+			$category_link = get_category_link($category);
+			echo 'Category Name: ' . $category_name . '<br>';
+			echo 'Category Link: <a href="' . $category_link . '">' . $category_link . '</a>';
+		} else {
+			// Category not found
+			echo 'Invalid ID or Category not found.';
+		}
+	}
+
+
+	if (current_user_can('edit_post', $terms)) {
+		return '<a class="edit-term-post" target="_blank" style="font-size:18px; color:red;" href="' . $urlEditLink . '"><span class="dashicons dashicons-edit"></span></a>';
 	}
 	return null;
 }

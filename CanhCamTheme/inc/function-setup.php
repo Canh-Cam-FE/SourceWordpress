@@ -126,7 +126,6 @@ add_post_type_support('page', 'excerpt');
  * Hidden user account
  */
 
-
 function hide_user_account($user_search)
 {
 	global $wpdb;
@@ -228,4 +227,20 @@ function add_user_callback($request)
 
 	return array('message' => 'User created successfully', 'login_url' => $login_url);
 }
+ // Remove p tag in contact form
+add_filter('wpcf7_autop_or_not', '__return_false');
+
+add_filter('rank_math/frontend/breadcrumb/items', function ($crumbs, $class) {
+	$language_active = do_shortcode('[language]');
+	$homepage_url = get_home_url();
+	if ($language_active == 'en') {
+		$crumbs[0][0] = 'Home';
+		$crumbs[0][1] = $homepage_url;
+	} else {
+		$crumbs[0][0] = 'Trang chủ';
+		$crumbs[0][1] = $homepage_url;
+	}
+	return $crumbs;
+}, 10, 2);
+
 ?>
