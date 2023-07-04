@@ -1,4 +1,4 @@
-<?php 
+<?php
 function log_dump($data)
 {
 	// Use the PHP ob_start function to capture the output of the var_dump function
