@@ -136,6 +136,10 @@ function cc_mime_types($mimes)
 	return $mimes;
 }
 add_filter('upload_mimes', 'cc_mime_types');
+
+if (is_admin()) {
+	define('ALLOW_UNFILTERED_UPLOADS', true);
+}
 //
 function add_additional_class_on_li($classes, $item, $args)
 {
