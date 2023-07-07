@@ -152,7 +152,8 @@ if (!class_exists('CanhCam_Licsence_Class')) {
 			$isDateExpiration = $this->isDateExpiration();
 
 			if ($isDateExpiration) {
-				echo '<div style="position: fixed; bottom: 0; left: 0; width: 100%; padding: 1rem 0;background-color: #f73936; z-index: 99999999; text-align:center; color: white; font-size: 2rem; text-transform: uppercase">Website này hiện tại chưa thanh toán</div>';
+				echo '<div style="position: fixed; bottom: 0; left: 0; width: 100%; padding: .6rem 0;background-color: #f73936; z-index: 99999999; text-align:center; color: white; font-size: 1rem; text-transform: uppercase">Demo version is expired. Phiên bản website đã hết hạn dùng thử</div>';
+				echo $expiration_time;
 			}
 		}
 		function formatTimeZoneVN($time)
