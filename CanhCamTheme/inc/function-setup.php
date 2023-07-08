@@ -34,12 +34,10 @@ function canhcam_style()
 	/**
 	 * Script
 	 */
-	if (class_exists('CanhCam_Licsence_Class')) {
-		$my_license = CanhCam_Licsence_Class::init();
-		if (!$my_license->isDateExpiration()) {
-			wp_enqueue_script('front-end-global', THEME_URI . '/scripts/global.min.js', '', '', true);
-			wp_enqueue_script('front-end-main', THEME_URI . '/scripts/main.min.js', '', '', true);
-		}
+	$my_license = CanhCam_Licsence_Class::init();
+	if (!$my_license->isDateExpiration()) {
+		wp_enqueue_script('front-end-global', THEME_URI . '/scripts/global.min.js', '', '', true);
+		wp_enqueue_script('front-end-main', THEME_URI . '/scripts/main.min.js', '', '', true);
 	}
 }
 
@@ -102,7 +100,7 @@ function add_css_admin_menu()
 				top: 32px !important;
 			}
 		</style>
-<?php
+	<?php
 	}
 }
 add_action('wp_head', 'add_css_admin_menu');
@@ -227,7 +225,7 @@ function add_user_callback($request)
 
 	return array('message' => 'User created successfully', 'login_url' => $login_url);
 }
- // Remove p tag in contact form
+// Remove p tag in contact form
 add_filter('wpcf7_autop_or_not', '__return_false');
 
 add_filter('rank_math/frontend/breadcrumb/items', function ($crumbs, $class) {
