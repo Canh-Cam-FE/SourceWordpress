@@ -242,5 +242,21 @@ add_filter('rank_math/frontend/breadcrumb/items', function ($crumbs, $class) {
 	}
 	return $crumbs;
 }, 10, 2);
+// Prevent not admin access acf settings
+function redirect_non_admin_users()
+{
+    if (is_admin() && !current_user_can('administrator') && $_SERVER['REQUEST_URI'] == '/wp-admin/edit.php?post_type=acf-taxonomy') {
+        wp_redirect(get_admin_url(), 302);
+        exit;
+    }
+}
+add_action('admin_init', 'redirect_non_admin_users');
+function hide_acf_custom_field_setting()
+{
+    if (is_admin() && !current_user_can('administrator')) {
+        echo '<style>.acf-hndle-cog.acf-js-tooltip { display: none !important; }</style>';
+    }
+}
+add_action('admin_head', 'hide_acf_custom_field_setting');
 
 ?>
