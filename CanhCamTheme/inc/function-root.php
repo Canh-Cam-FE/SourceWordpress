@@ -313,11 +313,15 @@ function get_language_shortcode()
 }
 add_shortcode('language', 'get_language_shortcode');
 
-function get_id_language($id, $type = 'post', $language)
+function get_id_language($id, $type = 'post', $language = '')
 {
+	if (isset($language)) {
+		$language =  do_shortcode('[language]');
+	}
 	$id_page_translate = apply_filters('wpml_object_id', $id, $type, FALSE, $language);
 	return $id_page_translate;
 }
+
 
 
 /**
