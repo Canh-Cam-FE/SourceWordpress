@@ -258,17 +258,4 @@ function hide_acf_custom_field_setting()
     }
 }
 add_action('admin_head', 'hide_acf_custom_field_setting');
-
-// Disable rest api
-add_filter('rest_authentication_errors', 'disable_rest_api');
-function disable_rest_api($result)
-{
-	if (!empty($result)) {
-		return $result;
-	}
-	if (!is_admin() && !current_user_can('administrator')) {
-		return new WP_Error('rest_not_logged_in', 'The REST API is disabled.', array('status' => 401));
-	}
-	return $result;
-}
 ?>
