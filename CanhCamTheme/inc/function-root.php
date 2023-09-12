@@ -323,7 +323,6 @@ function get_id_language($id, $type = 'post', $language = '')
 }
 
 
-
 /**
  * Add class active tab
  */
@@ -458,4 +457,17 @@ function get_term_depth($taxonomy, $depth)
 	} else {
 		return $result[$depth];
 	}
+}
+
+
+/**
+ * Get ancesstor of post by id
+ * @note get parent category of post
+ */
+
+function get_parent_id_post(){
+	global $post;
+	$taxonomy = get_post_taxonomies($post);
+	$id_ancesstor = wp_get_post_terms($post->ID, $taxonomy)[0]->term_id;
+	return $id_ancesstor;
 }
