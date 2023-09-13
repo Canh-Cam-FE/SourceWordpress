@@ -40,3 +40,16 @@
 	); ?>
 	<?php comment_form($comments_args); ?>
 </div><!-- #comments -->
+
+
+<?php
+add_action('wp_footer', 'commentScriptValidate');
+
+function commentScriptValidate()
+{
+    /**
+     * Styles
+     */
+    wp_enqueue_script('validate-js-cdn', 'https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js', '', '', true);
+    wp_enqueue_script('comment-script-validate', THEME_URI . '/scripts/comment.js', '', '', true);
+}; ?>
