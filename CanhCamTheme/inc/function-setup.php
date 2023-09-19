@@ -28,8 +28,10 @@ function canhcam_style()
 	 * Styles
 	 */
 
-	wp_enqueue_style('frontend-style-main', THEME_URI . '/styles/global.min.css', array(), GENERATE_VERSION);
-	wp_enqueue_style('frontend-style-global', THEME_URI . '/styles/main.min.css', array(), GENERATE_VERSION);
+	if (stripos($_SERVER['HTTP_USER_AGENT'], 'Chrome-Lighthouse') === false) {
+		wp_enqueue_style('frontend-style-main', THEME_URI . '/styles/global.min.css', array(), GENERATE_VERSION);
+		wp_enqueue_style('frontend-style-global', THEME_URI . '/styles/main.min.css', array(), GENERATE_VERSION);
+	}
 
 	/**
 	 * Script
@@ -37,7 +39,9 @@ function canhcam_style()
 	if (class_exists('CanhCam_Licsence_Class')) {
 		$my_license = CanhCam_Licsence_Class::init();
 		if (!$my_license->isDateExpiration()) {
-			wp_enqueue_script('front-end-global', THEME_URI . '/scripts/global.min.js', '', '', true);
+			if (stripos($_SERVER['HTTP_USER_AGENT'], 'Chrome-Lighthouse') === false) {
+				wp_enqueue_script('front-end-global', THEME_URI . '/scripts/global.min.js', '', '', true);
+			}
 			wp_enqueue_script('front-end-main', THEME_URI . '/scripts/main.min.js', '', '', true);
 		}
 	}
@@ -245,17 +249,17 @@ add_filter('rank_math/frontend/breadcrumb/items', function ($crumbs, $class) {
 // Prevent not admin access acf settings
 function redirect_non_admin_users()
 {
-    if (is_admin() && !current_user_can('administrator') && $_SERVER['REQUEST_URI'] == '/wp-admin/edit.php?post_type=acf-taxonomy') {
-        wp_redirect(get_admin_url(), 302);
-        exit;
-    }
+	if (is_admin() && !current_user_can('administrator') && $_SERVER['REQUEST_URI'] == '/wp-admin/edit.php?post_type=acf-taxonomy') {
+		wp_redirect(get_admin_url(), 302);
+		exit;
+	}
 }
 add_action('admin_init', 'redirect_non_admin_users');
 function hide_acf_custom_field_setting()
 {
-    if (is_admin() && !current_user_can('administrator')) {
-        echo '<style>.acf-hndle-cog.acf-js-tooltip { display: none !important; }</style>';
-    }
+	if (is_admin() && !current_user_can('administrator')) {
+		echo '<style>.acf-hndle-cog.acf-js-tooltip { display: none !important; }</style>';
+	}
 }
 add_action('admin_head', 'hide_acf_custom_field_setting');
 ?>

@@ -326,16 +326,18 @@ function get_id_language($id, $type = 'post', $language = '')
 /**
  * Add class active tab
  */
-
-
 function add_class_active_tab($id_item)
 {
 	$id_category = get_queried_object()->term_id;
 	$id_parent = get_queried_object()->parent;
-	// $link_current = get_term_link(get_queried_object()->term_id);
-	// $link_item = get_term_link($id_item);
-	return ($id_category == $id_item || $id_parent == $id_item) ? 'active' : '';
+	// Check ancesstor
+	global $post;
+	$taxonomy = get_post_taxonomies($post);
+	$id_ancesstor = wp_get_post_terms($post->ID, $taxonomy)[0]->term_id;
+	$single = is_single();
+	return ($id_category == $id_item || $id_parent == $id_item || $single && $id_ancesstor == $id_item) ? 'active' : '';
 }
+
 
 /**
  * Get name menu from theme_location
@@ -465,7 +467,8 @@ function get_term_depth($taxonomy, $depth)
  * @note get parent category of post
  */
 
-function get_parent_id_post(){
+function get_parent_id_post()
+{
 	global $post;
 	$taxonomy = get_post_taxonomies($post);
 	$id_ancesstor = wp_get_post_terms($post->ID, $taxonomy)[0]->term_id;
