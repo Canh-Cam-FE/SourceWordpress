@@ -30,8 +30,8 @@ function canhcam_style()
 
 	if (stripos($_SERVER['HTTP_USER_AGENT'], 'Chrome-Lighthouse') === false) {
 		wp_enqueue_style('frontend-style-main', THEME_URI . '/styles/global.min.css', array(), GENERATE_VERSION);
-		wp_enqueue_style('frontend-style-global', THEME_URI . '/styles/main.min.css', array(), GENERATE_VERSION);
 	}
+	wp_enqueue_style('frontend-style-global', THEME_URI . '/styles/main.min.css', array(), GENERATE_VERSION);
 
 	/**
 	 * Script
