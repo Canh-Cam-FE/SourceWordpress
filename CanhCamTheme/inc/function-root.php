@@ -326,6 +326,8 @@ function get_id_language($id, $type = 'post', $language = '')
 /**
  * Add class active tab
  */
+
+
 function add_class_active_tab($id_item)
 {
 	$id_category = get_queried_object()->term_id;
@@ -335,8 +337,11 @@ function add_class_active_tab($id_item)
 	$taxonomy = get_post_taxonomies($post);
 	$id_ancesstor = wp_get_post_terms($post->ID, $taxonomy)[0]->term_id;
 	$single = is_single();
-	return ($id_category == $id_item || $id_parent == $id_item || $single && $id_ancesstor == $id_item) ? 'active' : '';
+	$page = is_page();
+	$id_page_current = get_the_ID();
+	return ($id_category == $id_item || $id_parent == $id_item || $single && $id_ancesstor == $id_item || $page && $id_item == $id_page_current) ? 'active' : '';
 }
+
 
 
 /**
