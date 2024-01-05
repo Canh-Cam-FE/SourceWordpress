@@ -124,7 +124,6 @@ if (!class_exists('CanhCam_Licsence_Class')) {
 			}
 			return $elapsedTime;
 		}
-
 		function getDateExpiration()
 		{
 			global $canhcam_settings;
