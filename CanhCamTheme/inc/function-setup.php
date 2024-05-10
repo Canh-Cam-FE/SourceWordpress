@@ -167,6 +167,15 @@ function the_dramatist_custom_login_css()
 	echo '<style type="text/css" src="' . get_template_directory_uri() . '/styles/admin.css"></style>';
 }
 add_action('login_head', 'the_dramatist_custom_login_css');
+
+
+function addEditorStyle()
+{
+    add_editor_style(array(get_template_directory_uri() . '/styles/admin.css'));
+}
+add_action('after_setup_theme', 'addEditorStyle');
+
+
 // Custom login
 function my_login_logo_url()
 {
