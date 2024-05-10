@@ -343,7 +343,6 @@ function add_class_active_tab($id_item)
 }
 
 
-
 /**
  * Get name menu from theme_location
  */
@@ -466,16 +465,137 @@ function get_term_depth($taxonomy, $depth)
 	}
 }
 
-
 /**
- * Get ancesstor of post by id
- * @note get parent category of post
+ * Get image attractment
  */
 
+function changeAttrImage($url)
+{
+	$image_output = $url;
+	$image_output = str_replace('src', 'data-src', $image_output);
+	$image_output = str_replace('class="', 'class="lozad ', $image_output);
+	return $image_output;
+}
+function get_image_attrachment($image, $type = "image")
+{
+	if ($type == "image") {
+		if (!empty($image['ID'])) {
+			$url = wp_get_attachment_image($image['ID'], 'full', '', array('class' => ''));
+			return changeAttrImage($url);
+		} else {
+			$url = wp_get_attachment_image($image, 'full', '', array('class' => ''));
+			return changeAttrImage($url);
+		}
+	}
+	if ($type == "url") {
+		if (!empty($image['ID'])) {
+			$url = wp_get_attachment_image_url($image['ID'], 'full', '', array('class' => ''));
+			return $url;
+		} else {
+			$url = wp_get_attachment_image_url($image, 'full', '', array('class' => ''));
+			return $url;
+		}
+	}
+}
+
+function get_image_post($id, $type = "image")
+{
+	if ($type == "image") {
+		$url = get_the_post_thumbnail($id, 'full', '', array('class' => ''));
+		return changeAttrImage($url);
+	}
+	if ($type == "url") {
+		$url = get_the_post_thumbnail_url($id, 'full', '', array('class' => ''));
+		return $url;
+	}
+}
+
+
+
+
+add_filter('wp_lazy_loading_enabled', '__return_true');
+
+/**
+ * Get title menu
+ */
+function get_title_menu($name)
+{
+	$menu = wp_get_nav_menu_object($name);
+	return $menu->name;
+}
+
+/**
+ * Get ancesstor of post
+ */
 function get_parent_id_post()
 {
 	global $post;
 	$taxonomy = get_post_taxonomies($post);
 	$id_ancesstor = wp_get_post_terms($post->ID, $taxonomy)[0]->term_id;
 	return $id_ancesstor;
+}
+
+
+// @note Create Taxonomy
+function create_taxonomy($key, $name, $post_type, $slug)
+{
+	$create_taxonomy_sub = function () use ($key, $name, $post_type, $slug) {
+		$labels = array(
+			'name' => 'Danh mục ' . $name,
+			'singular' => $name,
+			'menu_name' => 'Danh mục ' . $name,
+		);
+		$args = array(
+			'labels' => $labels,
+			'hierarchical' => true,
+			'public' => true,
+			'show_ui' => true,
+			'show_admin_column' => true,
+			'rewrite' => array('hierarchical' => true, 'slug' => $slug),
+			'show_in_nav_menus' => true,
+			'show_tagcloud' => true,
+		);
+		register_taxonomy($key . '-category', $post_type, $args);
+	};
+	add_action('init', $create_taxonomy_sub, 3);
+}
+// @note Create Post Types
+
+function create_post_types($key, $name, $slug, $icon = "dashicons-slides")
+{
+	$create_post_types = function () use ($key, $name, $slug, $icon) {
+		$label = array(
+			'name' => $name, //Tên post type dạng số nhiều
+			'singular_name' => $name, //Tên post type dạng số ít
+			'view_item' => 'Xem ' . $name,
+			'add_new_item' => 'Thêm sản phẩm Mới',
+			'add_new' => 'Thêm ' . $name,
+			'edit_item' => 'Chỉnh sửa ' . $name,
+			'update_item' => 'Update ' . $name,
+		);
+		$args = array(
+			'labels' => $label, //Gọi các label trong biến label ở trên
+			'supports' => array(
+				'title',
+				'editor',
+				'thumbnail',
+			), //Các tính năng được hỗ trợ trong post type
+			'taxonomies' => array('pages'), //Các taxonomy được phép sử dụng để phân loại nội dung
+			'hierarchical' => false, //Cho phép phân cấp, nếu là false thì post type này giống như Post, true thì giống như Page
+			'public' => true, //Kích hoạt post type
+			'show_ui' => true, //Hiển thị khung quản trị như Post/Page
+			'show_in_menu' => true, //Hiển thị trên Admin Menu (tay trái)
+			'show_in_nav_menus' => true, //Hiển thị trong Appearance -> Menus
+			'show_in_admin_bar' => true, //Hiển thị trên thanh Admin bar màu đen.
+			'menu_position' => 10, //Thứ tự vị trí hiển thị trong menu (tay trái)
+			'menu_icon' => $icon, //Đường dẫn tới icon sẽ hiển thị
+			'can_export' => true, //Có thể export nội dung bằng Tools -> Export
+			'has_archive' => false, //Cho phép lưu trữ (month, date, year)
+			'rewrite' => array('slug' => $slug),
+			'publicly_queryable' => true, //Hiển thị các tham số trong query, phải đặt true
+			'capability_type' => 'post' //
+		);
+		register_post_type($key, $args); //Tạo post type với slug tên và các tham số trong biến args ở trên
+	};
+	add_action('init', $create_post_types, 3);
 }

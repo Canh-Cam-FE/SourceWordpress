@@ -262,4 +262,34 @@ function hide_acf_custom_field_setting()
 	}
 }
 add_action('admin_head', 'hide_acf_custom_field_setting');
+// Disable Update Notifications
+function hide_update_notice_to_all_but_admin_users()
+{
+    if (!current_user_can('update_core')) {
+        remove_action( 'admin_notices', 'update_nag', 3 );
+    }
+}
+add_action( 'admin_head', 'hide_update_notice_to_all_but_admin_users', 1 );
+function remove_core_updates(){
+    global $wp_version;return(object) array('last_checked'=> time(),'version_checked'=> $wp_version,);
+}
+add_filter('pre_site_transient_update_core','remove_core_updates');
+add_filter('pre_site_transient_update_plugins','remove_core_updates');
+add_filter('pre_site_transient_update_themes','remove_core_updates');
+
+// Disable Admin Notices
+function pr_disable_admin_notices() {
+    global $wp_filter;
+    if ( is_user_admin() ) {
+        if ( isset( $wp_filter['user_admin_notices'] ) ) {
+            unset( $wp_filter['user_admin_notices'] );
+        }
+    } elseif ( isset( $wp_filter['admin_notices'] ) ) {
+        unset( $wp_filter['admin_notices'] );
+    }
+    if ( isset( $wp_filter['all_admin_notices'] ) ) {
+        unset( $wp_filter['all_admin_notices'] );
+    }
+}
+add_action( 'admin_print_scripts', 'pr_disable_admin_notices' );
 ?>
